@@ -13,3 +13,5 @@ To run you need ruby & rackup installed.
 ## Issues
 
 Currently presentations are not compressed due to some kind of corruption when appending the binary data. If you can figure out the issue or streamline the deps, please do!
+
+Also, the webserver currently serves the directory. I couldn't be bothered to play with the rackup file to serve movie.swf by default. Again, if you can fix it, please do :D
