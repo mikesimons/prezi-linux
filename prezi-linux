@@ -1,0 +1,57 @@
+#!/bin/bash
+
+FILE="$1"
+OUTFILE=$(readlink -f -m "$2")
+
+# Check file was given and exists
+if [ -z "$OUTFILE" -o -z "$FILE" ]; then
+  echo "$0 <prezi_fip_file> <outfile>"
+  exit 0
+fi;
+
+if [ ! -f "$FILE" -o ! -r "$FILE" ]; then
+  echo "Input file missing"
+  exit 0
+fi;
+
+if [ -z "$OUTFILE" -o -f "$OUTFILE" ]; then
+  echo "Output file exists or is not writable!"
+  exit 0
+fi;
+
+# Create temporary working area
+TMP=$(tempfile)
+rm $TMP
+mkdir $TMP
+
+# Copy file to working area and extract
+cp $FILE $TMP
+cd $TMP
+unzip -q *.zip
+cd *
+
+# Remove chaff making sure to keep relevant bits
+rm prezi.exe
+mv prezi.app/Contents/Resources/movie.swf .
+rm -rf prezi.app
+
+# Create rackup config
+echo "run Rack::Directory.new(Dir.pwd)" > server.ru
+
+# Create bootstrap
+echo "#!/usr/bin/env ruby
+require 'tempfile'
+
+tmp = Tempfile.new('prezi')
+tmpdir = tmp.path + '.dir'
+tmp << DATA.read
+
+FileUtils.mkdir(tmpdir)
+\`cd #{tmpdir} && tar -xf #{tmp.path} && rackup server.ru\`
+\`rm -rf #{tmpdir}\`
+__END__" > "$OUTFILE"
+
+# Append binary data
+tar -c * >> "$OUTFILE"
+
+chmod +x "$OUTFILE"
