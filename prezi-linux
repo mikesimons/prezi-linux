@@ -19,6 +19,16 @@ if [ -z "$OUTFILE" -o -f "$OUTFILE" ]; then
   exit 0
 fi;
 
+if [ ! `which ruby` ]; then
+  echo "You need ruby in your PATH"
+  exit 0
+fi;
+
+if [ ! `which rackup` ]; then
+  echo "You need rack gem installed (gem install rack)"
+  exit 0
+fi;
+
 # Create temporary working area
 TMP=$(tempfile)
 rm $TMP
@@ -36,7 +46,7 @@ mv prezi.app/Contents/Resources/movie.swf .
 rm -rf prezi.app
 
 # Create rackup config
-echo "run Rack::Directory.new(Dir.pwd)" > server.ru
+echo "run Rack::Static.new(Rack::File.new(Dir.pwd), :urls => {\"/\" => 'movie.swf'})" > server.ru
 
 # Create bootstrap
 echo "#!/usr/bin/env ruby
@@ -45,6 +55,9 @@ require 'tempfile'
 tmp = Tempfile.new('prezi')
 tmpdir = tmp.path + '.dir'
 tmp << DATA.read
+
+puts 'Prezi listening on http://localhost:9292/'
+puts 'Press CTRL+c to quit'
 
 FileUtils.mkdir(tmpdir)
 \`cd #{tmpdir} && tar -xf #{tmp.path} && rackup server.ru\`
