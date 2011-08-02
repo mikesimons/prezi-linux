@@ -49,20 +49,23 @@ rm -rf prezi.app
 echo "run Rack::Static.new(Rack::File.new(Dir.pwd), :urls => {\"/\" => 'movie.swf'})" > server.ru
 
 # Create bootstrap
-echo "#!/usr/bin/env ruby
-require 'tempfile'
+echo -n "#!/bin/bash
 
-tmp = Tempfile.new('prezi')
-tmpdir = tmp.path + '.dir'
-tmp << DATA.read
+THIS=\$(readlink -f \"\$0\")
+TMP=\$(tempfile -p prezi)
+TMP_DIR=\$TMP.dir
+BIN_START=\$(grep -an '^PREZI_BIN:' \"\$THIS\" | sed 's/:.*//g')
 
-puts 'Prezi listening on http://localhost:9292/'
-puts 'Press CTRL+c to quit'
+echo 'Prezi listening on http://localhost:9292/'
+echo 'Press CTRL+c to quit'
 
-FileUtils.mkdir(tmpdir)
-\`cd #{tmpdir} && tar -xf #{tmp.path} && rackup server.ru\`
-\`rm -rf #{tmpdir}\`
-__END__" > "$OUTFILE"
+mkdir \$TMP_DIR
+cd \$TMP_DIR && tail -n +\$((BIN_START + 1)) \"\$THIS\" | tar -xf - && rackup server.ru
+rm -rf \$TMP_DIR
+exit
+
+PREZI_BIN:
+" > "$OUTFILE"
 
 # Append binary data
 tar -c * >> "$OUTFILE"
