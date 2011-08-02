@@ -2,8 +2,13 @@
 
 Feed it a prezi zip and it'll give you an executable to run a webserver to serving your prezi presentation.
 
-  ./prezi-linux prezi.zip my_prezi
-  ./my_prezi
+To convert:
+
+    ./prezi-linux prezi.zip my_prezi
+
+To run:
+
+    ./my_prezi
 
 ## Requirements
 
