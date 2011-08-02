@@ -60,7 +60,7 @@ echo 'Prezi listening on http://localhost:9292/'
 echo 'Press CTRL+c to quit'
 
 mkdir \$TMP_DIR
-cd \$TMP_DIR && tail -n +\$((BIN_START + 1)) \"\$THIS\" | tar -xf - && rackup server.ru
+cd \$TMP_DIR && tail -n +\$((BIN_START + 1)) \"\$THIS\" | tar -xjf - && rackup server.ru
 rm -rf \$TMP_DIR
 exit
 
@@ -68,6 +68,6 @@ PREZI_BIN:
 " > "$OUTFILE"
 
 # Append binary data
-tar -c * >> "$OUTFILE"
+tar -cj * >> "$OUTFILE"
 
 chmod +x "$OUTFILE"
